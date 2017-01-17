@@ -4,41 +4,36 @@ using UnityEngine;
 
 [System.Serializable]
 public abstract class ProceduralSound : MonoBehaviour {
-
+	public float volume; // 0 <-- x --> 1
 	public bool active = false;
 	protected float elapsedTime;
 	protected PROCEDURAL_SOUND_TYPE Type;
+	protected INITIALIZATION_STATE Init = INITIALIZATION_STATE.UNINITIALIZED;
 
 	// Use this for initialization
 	void Start () {
 		elapsedTime = 0.0f;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		if (active) {
-			if (Type == PROCEDURAL_SOUND_TYPE.TIMER) {
-				elapsedTime += Time.deltaTime;
-				if (elapsedTime >= DetermineWaitTime ()) {
-					PlayOnce ();
-					elapsedTime = 0;
-				}
-			}
-		}
+		Init = INITIALIZATION_STATE.UNINITIALIZED;
+		Source = Utilities.HierarchySearchForAudioSource(gameObject);
+		// Playing with the idea of automatic detection of new sounds in the Scene Audio Ecosystem
+		//		if (AZProceduralAudioManager.Instance.Sounds[id] == null)
+		//			AZProceduralAudioManager.Instance.Sounds.Add(id, this);
 	}
 
-	protected virtual float DetermineWaitTime(){
-		return 1f;
-	}
-
+	// Determines currently playing sound: Unapplicable for VR and HR. Required for all simple PS subclasses.
 	protected abstract AudioClip DetermineSound ();
 
-	protected virtual void PlayOnce(){
-		GetComponent<AudioSource>().PlayOneShot (DetermineSound());
+	protected virtual void Play(){
+		Source.PlayOneShot (DetermineSound());
 	}
 
 	protected enum PROCEDURAL_SOUND_TYPE{
 		TIMER,
 		TRIGGER
+	}
+
+	protected enum INITIALIZATION_STATE{
+		INITIALIZED,
+		UNINITIALIZED
 	}
 }

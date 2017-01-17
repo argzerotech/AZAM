@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+/// <summary>
+/// 
+/// </summary>
 [System.Serializable]
-public class AZProceduralAudioManager : MonoBehaviour {	
-	private AZProceduralAudioManager Instance;
+public class AZProceduralAudioManager : MonoBehaviour, IAudioEventHandler {	
+	public static AZProceduralAudioManager Instance;
 
 	[System.Serializable]
 	public class NameIndexedProceduralSoundDictionary : SerializableDictionary<string,ProceduralSound>{}
@@ -52,6 +55,7 @@ public class AZProceduralAudioManager : MonoBehaviour {
 		}
 	}
 }
+
 [CustomEditor(typeof(AZProceduralAudioManager))]
 public class AZProceduralAudioManagerEditor : Editor 
 {
