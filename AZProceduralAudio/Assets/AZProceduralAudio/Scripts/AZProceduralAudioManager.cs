@@ -7,7 +7,7 @@ using UnityEditor;
 /// 
 /// </summary>
 [System.Serializable]
-public class AZProceduralAudioManager : MonoBehaviour, IAudioEventHandler {	
+public class AZProceduralAudioManager : MonoBehaviour {	
 	public static AZProceduralAudioManager Instance;
 
 	[System.Serializable]
@@ -53,6 +53,16 @@ public class AZProceduralAudioManager : MonoBehaviour, IAudioEventHandler {
 		foreach (string _key in Sounds.Keys) {
 			Sounds.Remove(_key);
 		}
+	}
+
+	public void Play(string key, float volume){
+		if (!Active) {
+			Debug.LogError ("You may NOT play sounds when AZAM is disabled.\n");
+		}
+	}
+
+	public void Stop(string key){
+		
 	}
 }
 
