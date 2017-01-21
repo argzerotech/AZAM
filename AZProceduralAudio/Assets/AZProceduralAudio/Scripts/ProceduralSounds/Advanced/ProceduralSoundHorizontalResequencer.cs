@@ -4,40 +4,71 @@ using UnityEngine;
 
 // Allows for Resequencing of Individual Tracks
 // Trigger / Timer hybrid: On current Sound Finished
-public class ProceduralSoundHorizontalResequencer : ProceduralSound {
+public class ProceduralSoundHorizontalResequencer : ProceduralSound, FadableSound {
 	[SerializeField]
-	public SoundProbabilityDictionary Clips = new SoundProbabilityDictionary ();
+	public SoundProbabilityDictionary Tracks = new SoundProbabilityDictionary ();
 	public ProceduralSound Current;
 
+	public bool Fadable {
+		get;
+		set;
+	}
+
 	void Start(){
-		Source = null;
+		Type = PROCEDURAL_SOUND_TYPE.ADVANCED;
 	}
 
-	protected override AudioClip DetermineSound(){
-		return Current.DetermineSound();
+	public override void Play(){
+		IsPlaying = true;
+		StartCoroutine(Current.FadeIn());
+		Debug.Log ("Playing HORIZONTAL RESEQUENCER PROCEDURAL SOUND");
+		Debug.Log ("OBJECT NAME: " + gameObject.name);
+		Current.Play ();
 	}
 
-	protected override void Play(){
-		return;
+	public void PlayNext(){
+		Current = null;
+		float total_probability = 0.0f;
+		foreach (string key in Tracks.Keys) {
+			if (key == "") {
+				continue;
+			}
+			Debug.Log ("HORIZONTAL RESEQUENCER PLAYING SOUND : " + key);
+			total_probability += Tracks[key].Probability;
+		}
+		if (total_probability != 1.0f) {
+			Debug.LogError ("Total probability for Horizontal Resequencing Tracks DOES NOT SUM TO 1.0f!");
+			return;
+		}
+
+		float current_value = 0.0f;
+		float number = Random.Range (0.0f, 1.0f);
+		foreach (string key in Tracks.Keys) {
+			if (Utilities.FloatIsBetween (number, current_value, current_value + Tracks [key].Probability)) {
+				Current = Tracks[key].Sound;
+				Current.Play ();
+				IsPlaying = true;
+				StartCoroutine(Current.FadeIn());
+				Debug.Log (Current.name);
+			}
+		}
 	}
 		
-	protected void Stop(){
-		if (Source.isPlaying)
-			Source.Pause ();
+	public override void Stop(){
+		IsPlaying = false;
+		Current.Stop ();
 	}
 
-	[System.Serializable]
-	public class SoundProbabilityDictionary : SerializableDictionary<string,SoundProbabilityAssociation>{}
-
-	[UnityEditor.CustomPropertyDrawer(typeof(SoundProbabilityDictionary))]
-	public class SoundProbabilityDictionaryDrawer : SerializableDictionaryDrawer<string,SoundProbabilityAssociation> { }
+	public override void UpdateSound(){
+		if (!Current.IsPlaying && IsPlaying) {
+			IsPlaying = false;
+			PlayNext ();
+		}
+	}
 }
 
 [System.Serializable]
-public struct SoundProbabilityAssociation{
-	// Audio File associated with the probability
-	public ProceduralSound Clip;
+public class SoundProbabilityDictionary : SerializableDictionary<string,ProceduralSoundProbabilityAssociation>{}
 
-	// 0 to 1: 1 is maximum probability for Clip
-	public float Probability;
-}
+[UnityEditor.CustomPropertyDrawer(typeof(SoundProbabilityDictionary))]
+public class SoundProbabilityDictionaryDrawer : SerializableDictionaryDrawer<string,ProceduralSoundProbabilityAssociation> { }

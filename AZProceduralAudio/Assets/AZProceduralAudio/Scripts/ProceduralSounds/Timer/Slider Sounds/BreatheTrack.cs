@@ -13,11 +13,11 @@ public class BreatheTrack : ProceduralSliderTimerSound {
 		return BreatheSounds [Mode];
 	}
 
-	protected override void PlayOnce(){
+	public override void Play(){
 		if (Init == INITIALIZATION_STATE.UNINITIALIZED)
 			return;
-		
-		base.PlayOnce ();
+		// Debug.Log ("Breathing: " + Mode.ToString ());
+		base.Play();
 		Mode = (Mode == BreatheMode.In)? BreatheMode.Out : BreatheMode.In;
 	}
 
