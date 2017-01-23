@@ -3,20 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+/// <summary>
+/// 
+/// </summary>
 [System.Serializable]
 public class AZProceduralAudioManager : MonoBehaviour {	
-	private AZProceduralAudioManager Instance;
-
-	[System.Serializable]
-	public class NameIndexedProceduralSoundDictionary : SerializableDictionary<string,ProceduralSound>{}
-
-	[UnityEditor.CustomPropertyDrawer(typeof(NameIndexedProceduralSoundDictionary))]
-	public class NameIndexedProceduralSoundDictionaryDrawer : SerializableDictionaryDrawer<string,ProceduralSound> { }
+	public static AZProceduralAudioManager Instance;
 
 	[SerializeField]
 	public NameIndexedProceduralSoundDictionary Sounds = new NameIndexedProceduralSoundDictionary ();
 
-	private bool active;
+	private bool active = true;
 	public bool Active {
 		get { return active; }
 		set { 
@@ -24,7 +21,7 @@ public class AZProceduralAudioManager : MonoBehaviour {
 			foreach (string _key in Sounds.Keys) {
 				ProceduralSound _sound = Sounds[_key];
 				if(_sound != null)
-					_sound.active = value;
+					_sound.Active = value;
 			}
 		}
 	}
@@ -51,11 +48,41 @@ public class AZProceduralAudioManager : MonoBehaviour {
 			Sounds.Remove(_key);
 		}
 	}
+
+	public void Play(string key, float volume){
+		if (!Active) {
+			Debug.LogError ("Unavailability Exception: You may NOT play sounds through AZAM\n when AZAM is disabled.\n");
+		} else {
+			Sounds [key].Volume = volume;
+			Sounds [key].Play ();
+		}
+	}
+
+	public void Play(string key){
+		if (!Active) {
+			Debug.LogError ("Unavailability Exception: You may NOT play sounds through AZAM\n when AZAM is disabled.\n");
+		}
+
+		Sounds [key].Play ();
+	}
+
+
+	public void Stop(string key){
+		
+	}
+
+	public void Update(){
+		foreach (string _key in Sounds.Keys) {
+			Sounds[_key].UpdateSound ();
+		}
+	}
 }
+
 [CustomEditor(typeof(AZProceduralAudioManager))]
 public class AZProceduralAudioManagerEditor : Editor 
 {
-	bool defaultGUI = false;
+	string soundName = "";
+	bool defaultGUI = true;
 	public override void OnInspectorGUI() {
 		defaultGUI = (GUILayout.Button ("Default Inspector")) ? !defaultGUI : defaultGUI;
 		if (defaultGUI == true)
@@ -67,5 +94,11 @@ public class AZProceduralAudioManagerEditor : Editor
 		GUIStyle ActiveTextStyle = new GUIStyle(EditorStyles.label);
 		ActiveTextStyle.normal.textColor = (active) ? Color.green : Color.red;
 		GUILayout.Label(((active)? "ACTIVE" : "INACTIVE"),ActiveTextStyle);
+		GUILayout.Box("", new GUILayoutOption[]{GUILayout.ExpandWidth(true), GUILayout.Height(1)});
+		soundName = EditorGUILayout.TextArea(soundName, GUILayout.MaxHeight(75) );
+
+		if (GUILayout.Button ("Play Sound")) {
+			((AZProceduralAudioManager)target).Play (soundName);
+		}
 	}
 }
