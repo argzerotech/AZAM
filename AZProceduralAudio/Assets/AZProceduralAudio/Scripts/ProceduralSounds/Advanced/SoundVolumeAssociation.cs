@@ -9,7 +9,3 @@ public class SoundVolumeAssociation : MonoBehaviour{
 	[SerializeField]
 	public float Volume;
 }
-	
-[System.Serializable]
-public class SoundVolumeList : List<SoundVolumeAssociation>{}
-

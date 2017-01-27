@@ -14,15 +14,14 @@ public class ProceduralTriggerSound : SimpleProceduralSound {
 	}
 
 	public override void Play(){
+		Debug.Log ("Playing TriggerSound: " + gameObject.name);
 		if (Active) {
 			base.Play();
 		}
 	}
 		
 	public override void Stop(){
-		if (Active) {
-			base.Play();
-		}
+		base.Stop();
 	}
 
 	public override void UpdateSound () {

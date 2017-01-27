@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Allows for Resequencing of Individual Tracks
-// Trigger / Timer hybrid: On current Sound Finished
-public class ProceduralSoundHorizontalResequencer : ProceduralSound, FadableSound {
+// Trigger / Timer hybrid: On current Sound Finished, play next. Similar to LoopSound. 
+// Additionally, PSHR plays sounds based on probabilities. All probabilities in track options MUST SUM to 1.0f.
+public class ProceduralSoundSimpleHorizontalResequencer : ProceduralSound, FadableSound {
 	[SerializeField]
 	public SoundProbabilityDictionary Tracks = new SoundProbabilityDictionary ();
 	public ProceduralSound Current;
@@ -20,20 +21,19 @@ public class ProceduralSoundHorizontalResequencer : ProceduralSound, FadableSoun
 
 	public override void Play(){
 		IsPlaying = true;
-		StartCoroutine(Current.FadeIn());
 		Debug.Log ("Playing HORIZONTAL RESEQUENCER PROCEDURAL SOUND");
 		Debug.Log ("OBJECT NAME: " + gameObject.name);
 		Current.Play ();
 	}
 
 	public void PlayNext(){
-		Current = null;
+		Debug.Log ("PlayNEXT");
 		float total_probability = 0.0f;
 		foreach (string key in Tracks.Keys) {
 			if (key == "") {
 				continue;
 			}
-			Debug.Log ("HORIZONTAL RESEQUENCER PLAYING SOUND : " + key);
+			Debug.Log ("Track in HR: " + Tracks [key].name);
 			total_probability += Tracks[key].Probability;
 		}
 		if (total_probability != 1.0f) {
@@ -43,14 +43,15 @@ public class ProceduralSoundHorizontalResequencer : ProceduralSound, FadableSoun
 
 		float current_value = 0.0f;
 		float number = Random.Range (0.0f, 1.0f);
+		Debug.Log (number);
 		foreach (string key in Tracks.Keys) {
 			if (Utilities.FloatIsBetween (number, current_value, current_value + Tracks [key].Probability)) {
 				Current = Tracks[key].Sound;
 				Current.Play ();
-				IsPlaying = true;
-				StartCoroutine(Current.FadeIn());
-				Debug.Log (Current.name);
+				Debug.Log ("HR playing: " + Current.name);
+				return;
 			}
+			current_value += Tracks [key].Probability;
 		}
 	}
 		
@@ -60,8 +61,9 @@ public class ProceduralSoundHorizontalResequencer : ProceduralSound, FadableSoun
 	}
 
 	public override void UpdateSound(){
-		if (!Current.IsPlaying && IsPlaying) {
-			IsPlaying = false;
+		if (Current == null)
+			return;
+		if (!Current.IsPlaying) {
 			PlayNext ();
 		}
 	}

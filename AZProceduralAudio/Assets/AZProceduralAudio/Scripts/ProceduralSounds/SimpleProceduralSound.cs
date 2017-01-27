@@ -5,6 +5,7 @@ public abstract class SimpleProceduralSound : ProceduralSound
 {
 	public AudioSource Source;	
 	public float timePlaying = 0;
+
 	// Determines currently playing sound: Unapplicable for VR and HR. Required for all simple PS subclasses.
 	protected virtual AudioClip DetermineSound (){
 		Debug.LogError ("DetermineSoundNotImplementedException!");
@@ -21,18 +22,26 @@ public abstract class SimpleProceduralSound : ProceduralSound
 		Source.time = 0;
 		Source.Play();
 		IsPlaying = true;
-			Debug.Log ("Playing SPS");
+		Debug.Log ("Playing SPS");
 	}
-		
+
+	public override void Stop(){
+		if (Active) {
+			Source.Stop ();
+		}
+	}
+
 	public override void UpdateSound (){
 		Source.volume = GetVolume ();
 		if (Source.isPlaying) {
 			timePlaying += Time.deltaTime;
-			if (timePlaying > Source.clip.length) {
+			if (timePlaying >= Source.clip.length) {
 				timePlaying = 0;
 				IsPlaying = false;
 			}
 		}
 	}
+
+	// public ForceVolume....
 }
 

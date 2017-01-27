@@ -9,6 +9,11 @@ public class ProceduralSoundVerticalRemixer : ProceduralSound, FadableSound {
 
 	[SerializeField]
 	protected List<SoundVolumeAssociation> TrackVolumes = new List<SoundVolumeAssociation>();
+	[SerializeField]
+	protected List<VolumeStateManager> TrackVolumeStates = new List<VolumeStateManager>();
+
+	//[SerializeField]
+	//public SerializeableNameIndexedSoundToVolumeDictionary VolumeStates;
 
 	public bool Fadable {
 		get;

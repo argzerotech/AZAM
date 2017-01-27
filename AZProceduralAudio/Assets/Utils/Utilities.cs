@@ -19,23 +19,6 @@ public static class Utilities
 		return (gameObject.GetComponent<AudioSource> () != null) ? gameObject.GetComponent<AudioSource> () : 
 			HierarchySearchForAudioSource (gameObject.transform.parent.gameObject);
 	}
-
-	public static bool IsPlaying(AudioSource src){
-		if (src == null) {
-			//Debug.Log ("Null AudioSource!");
-			return false;
-		}
-
-		if (src.clip == null) {
-			//Debug.Log ("Null AudioClip!");
-			return false;
-		}
-
-		if (src.time >= src.clip.length) {
-			return true;
-		} else
-			return false;
-	}
 	#endregion
 }
 

@@ -45,7 +45,7 @@ public class ProceduralSliderTimerSound : SimpleProceduralSound, Timed {
 		Delay = DEBUG_OVERRIDE_SPEED * Multiplier + MinimumOffset;
 
 		if (Delay <= 0)
-			Delay = 1000.0f;
+			Delay = 0.0f;
 		return Delay;
 	}
 
