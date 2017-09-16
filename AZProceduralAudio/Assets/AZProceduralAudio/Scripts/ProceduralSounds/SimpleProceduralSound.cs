@@ -22,7 +22,7 @@ public abstract class SimpleProceduralSound : ProceduralSound
 		Source.time = 0;
 		Source.Play();
 		IsPlaying = true;
-		Debug.Log ("Playing SPS");
+		Debug.Log ("Playing Simple Procedural Sound");
 	}
 
 	public override void Stop(){

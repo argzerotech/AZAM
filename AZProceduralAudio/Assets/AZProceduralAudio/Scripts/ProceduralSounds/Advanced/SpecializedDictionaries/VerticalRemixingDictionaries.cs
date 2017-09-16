@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class SerializeableStateVolumeDictionary : SerializableDictionary<string, GameObject> {
-
-}
-
-[System.Serializable]
-public class SerializableProceduralSoundVolumeDictionary : SerializableDictionary<ProceduralSound,float>{}
+// GUIDE TO CREATING PROPERTY DRAWERS IN INSPECTOR
+[UnityEditor.CustomPropertyDrawer(typeof(SerializableDictionary <int, float> ))]
+[System.Serializable] public class SerializableTrackToVolumeLinks: SerializableDictionary<int, 
+																				  float> {}
+ 
+[UnityEditor.CustomPropertyDrawer(typeof(SerializableTrackToVolumeLinks))]
+public class SerializableTrackVolumeDrawer : SerializableDictionaryDrawer<int, float> { }

@@ -21,6 +21,7 @@ public class ProceduralTriggerSound : SimpleProceduralSound {
 	}
 		
 	public override void Stop(){
+		timePlaying = 0;
 		base.Stop();
 	}
 

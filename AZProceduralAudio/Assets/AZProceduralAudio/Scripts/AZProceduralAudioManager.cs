@@ -68,7 +68,11 @@ public class AZProceduralAudioManager : MonoBehaviour {
 
 
 	public void Stop(string key){
-		
+		if (!Active) {
+			Debug.LogError ("Unavailability Exception: You may NOT stop sounds through AZAM\n when AZAM is disabled.\n");
+		}
+
+		Sounds [key].Stop ();
 	}
 
 	public void Update(){
