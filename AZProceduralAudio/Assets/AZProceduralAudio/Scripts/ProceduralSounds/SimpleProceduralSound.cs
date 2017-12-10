@@ -29,13 +29,14 @@ public abstract class SimpleProceduralSound : ProceduralSound
 		if (Active) {
 			Source.Stop ();
 		}
+		IsPlaying = false;
 	}
 
 	public override void UpdateSound (){
 		Source.volume = GetVolume ();
 		if (Source.isPlaying) {
 			timePlaying += Time.deltaTime;
-			if (timePlaying >= Source.clip.length) {
+			if (timePlaying >= Source.clip.length-1) {
 				timePlaying = 0;
 				IsPlaying = false;
 			}

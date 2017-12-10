@@ -7,7 +7,8 @@ using UnityEngine;
 using UnityEditor;
 using UnityObject = UnityEngine.Object;
 
-[Serializable, DebuggerDisplay("Count = {Count}")]
+[DebuggerDisplay("Count = {Count}")]
+[Serializable]
 public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 {
 	[SerializeField, HideInInspector] int[] _Buckets;
@@ -76,6 +77,11 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 		}
 	}
 
+	~SerializableDictionary()
+	{
+		Clear ();
+	}
+
 	public TValue this[TKey key]
 	{
 		get
@@ -115,6 +121,11 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 	}
 
 	public SerializableDictionary(IDictionary<TKey, TValue> dictionary)
+		: this(dictionary, null)
+	{
+	}
+
+	public SerializableDictionary(SerializableDictionary<TKey, TValue> dictionary)
 		: this(dictionary, null)
 	{
 	}
@@ -338,7 +349,8 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 	{
 		if (key == null)
 			throw new ArgumentNullException("key");
-
+		if (key == null)
+			return -1;
 		if (_Buckets != null)
 		{
 			int hash = _Comparer.GetHashCode(key) & 2147483647;
@@ -613,8 +625,9 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 		}
 	}
 }
-	
-public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
+
+[System.Serializable]
+public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 {
 	private SerializableDictionary<TK, TV> _Dictionary;
 	private bool _Foldout;
@@ -631,7 +644,6 @@ public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 	{
 		CheckInitialize(property, label);
-
 		position.height = 17f;
 
 		var foldoutRect = position;
@@ -658,7 +670,7 @@ public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 		} 
 		if (!_Foldout)
 			return;
-
+		
 		foreach (var item in _Dictionary)
 		{
 			var key = item.Key;
@@ -671,6 +683,7 @@ public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 			keyRect.width -= 4;
 			EditorGUI.BeginChangeCheck();
 			var newKey = DoField(keyRect, typeof(TK), key);
+
 			if (EditorGUI.EndChangeCheck())
 			{
 				try
@@ -716,18 +729,23 @@ public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 
 	private void CheckInitialize(SerializedProperty property, GUIContent label)
 	{
+		//UnityEngine.Debug.Log ("CHECKINIT 1: "+(_Dictionary != null).ToString());
 		if (_Dictionary == null)
 		{
+			//UnityEngine.Debug.Log ("CHECKINIT 2: "+(_Dictionary != null).ToString());
 			var target = property.serializedObject.targetObject;
 			_Dictionary = fieldInfo.GetValue(target) as SerializableDictionary<TK, TV>;
-			if (_Dictionary == null)
-			{
-				_Dictionary = new SerializableDictionary<TK, TV>();
-				fieldInfo.SetValue(target, _Dictionary);
-			}
-
+			//UnityEngine.Debug.Log ("CHECKINIT 3: "+(_Dictionary != null).ToString());
+			if (_Dictionary == null) {
+			//	UnityEngine.Debug.Log ("CHECKINIT 4: " + (_Dictionary != null).ToString ());
+				_Dictionary = new SerializableDictionary<TK, TV> ();
+				fieldInfo.SetValue (target, _Dictionary);
+			//	UnityEngine.Debug.Log ("CHECKINIT 5: " + (_Dictionary != null).ToString ());
+			} else
+				EditorUtility.SetDirty (property.serializedObject.targetObject);
 			_Foldout = EditorPrefs.GetBool(label.text);
 		}
+		EditorUtility.SetDirty (property.serializedObject.targetObject);
 	}
 
 	private static readonly Dictionary<Type, Func<Rect, object, object>> _Fields =

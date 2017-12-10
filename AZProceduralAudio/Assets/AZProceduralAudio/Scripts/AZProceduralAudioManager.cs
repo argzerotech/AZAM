@@ -8,10 +8,11 @@ using UnityEditor;
 /// </summary>
 [System.Serializable]
 public class AZProceduralAudioManager : MonoBehaviour {	
+	[SerializeField]
 	public static AZProceduralAudioManager Instance;
 
 	[SerializeField]
-	public NameIndexedProceduralSoundDictionary Sounds = new NameIndexedProceduralSoundDictionary ();
+	public NameIndexedProceduralSoundDictionary Sounds;
 
 	private bool active = true;
 	public bool Active {
@@ -31,8 +32,10 @@ public class AZProceduralAudioManager : MonoBehaviour {
 			Destroy (Instance.gameObject);
 		Instance = this;
 
-		if(Sounds == null)
+		if (Sounds == null) {
+			Debug.LogWarning ("Sound Dictionary initially null!");
 			Sounds = new NameIndexedProceduralSoundDictionary ();
+		}
 	}
 
 	public void Add(string _key, ProceduralSound _newSound) {
@@ -77,7 +80,12 @@ public class AZProceduralAudioManager : MonoBehaviour {
 
 	public void Update(){
 		foreach (string _key in Sounds.Keys) {
-			Sounds[_key].UpdateSound ();
+			if (!Sounds.Keys.Contains (_key))
+				continue;
+			if (string.IsNullOrEmpty (_key))
+				continue;
+			if(Sounds[_key]!=null)
+				Sounds[_key].UpdateSound ();
 		}
 	}
 }
